@@ -19,16 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-Additional Notice / 附加说明
-
-The Software generates randomly fabricated unified social credit codes,
-organization codes and resident identity card numbers for software testing,
-system integration and data-masking demos ONLY.
-
-本软件生成的统一社会信用代码、组织机构代码、居民身份证号码均为随机虚构，
-仅限用于软件开发测试、系统联调、数据脱敏演示等合法场景。
-严禁用于伪造证件、冒用他人身份、绕过实名认证或任何其他违法违规用途，
-违者由使用者自行承担全部法律责任，与作者无关。
