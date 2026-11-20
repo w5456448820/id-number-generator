@@ -9,9 +9,7 @@
 
 ## 界面预览
 
-| 主界面 | 关于窗口 |
-| --- | --- |
-| ![主界面](screenshots/main.png) 
+![主界面](screenshots/main.png)
 
 ## 下载即用
 
