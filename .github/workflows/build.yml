@@ -1,0 +1,80 @@
+name: Build EXE
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: PyInstaller (Windows x64)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install PyInstaller
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pyinstaller
+
+      - name: Build single-file exe
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_REF -like 'refs/tags/*') {
+            $ver = $env:GITHUB_REF -replace '^refs/tags/',''
+          } else {
+            $ver = "run$env:GITHUB_RUN_NUMBER"
+          }
+          $name = "IDNumberGenerator-$ver"
+          Write-Host "==> building $name.exe"
+          python -m PyInstaller --noconfirm --clean --onefile --noconsole `
+            --icon app.ico `
+            --add-data "pca-code.json;." `
+            --add-data "app.ico;." `
+            --name $name `
+            id_generator.py
+          if (-not (Test-Path "dist/$name.exe")) {
+            Write-Error "打包失败：未找到 dist/$name.exe"
+            exit 1
+          }
+          Get-Item "dist/$name.exe" | Select-Object Name, Length
+          "EXE_NAME=$name" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Smoke test exe
+        shell: pwsh
+        run: |
+          $exe = "dist/$env:EXE_NAME.exe"
+          $p = Start-Process -FilePath $exe -PassThru
+          Start-Sleep -Seconds 8
+          if ($p.HasExited) {
+            Write-Error "exe 启动后立即退出（exit code $($p.ExitCode)），疑似打包缺依赖"
+            exit 1
+          }
+          Write-Host "exe 启动正常，进程 PID $($p.Id)"
+          Stop-Process -Id $p.Id -Force
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: IDNumberGenerator-windows-x64
+          path: dist/*.exe
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish to Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.exe
+          generate_release_notes: true
